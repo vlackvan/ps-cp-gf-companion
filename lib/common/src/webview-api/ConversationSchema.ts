@@ -62,6 +62,10 @@ export type InstructionRefinementContent = zod.infer<
   typeof instructionRefinementContentSchema
 >;
 
+export const modeSchema = zod.enum(["debug", "explain", "learn", "reveal"]);
+
+export type Mode = zod.infer<typeof modeSchema>;
+
 export const conversationSchema = zod.object({
   id: zod.string(),
   header: zod.object({
@@ -73,6 +77,8 @@ export const conversationSchema = zod.object({
     messageExchangeContentSchema,
     instructionRefinementContentSchema,
   ]),
+  mode: modeSchema.optional(),
+  hintLevel: zod.number().min(0).max(4).optional(),
 });
 
 export type Conversation = zod.infer<typeof conversationSchema>;

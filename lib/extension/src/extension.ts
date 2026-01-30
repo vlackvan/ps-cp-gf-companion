@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { AIClient } from "./ai/AIClient";
+import { BackendClient } from "./ai/BackendClient";
 import { ApiKeyManager } from "./ai/ApiKeyManager";
 import { ChatController } from "./chat/ChatController";
 import { ChatModel } from "./chat/ChatModel";
@@ -48,10 +49,15 @@ export const activate = async (context: vscode.ExtensionContext) => {
     logger: vscodeLogger,
   });
 
+  const backendClient = new BackendClient({
+    logger: vscodeLogger,
+  });
+
   const chatController = new ChatController({
     chatPanel,
     chatModel,
     ai,
+    backendClient,
     diffEditorManager: new DiffEditorManager({
       extensionUri: context.extensionUri,
     }),
@@ -100,7 +106,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       chatController.createConversation("generate-unit-test");
     }),
     vscode.commands.registerCommand("rubberduck.startChat", () => {
-      chatController.createConversation("chat-en");
+      chatController.createPSConversation();
     }),
     vscode.commands.registerCommand("rubberduck.editCode", () => {
       chatController.createConversation("edit-code");

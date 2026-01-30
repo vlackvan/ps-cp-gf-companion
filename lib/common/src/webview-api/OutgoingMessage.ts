@@ -31,6 +31,22 @@ export const outgoingMessageSchema = zod.discriminatedUnion("type", [
     data: zod.object({
       id: zod.string(),
       message: zod.string(),
+      mode: zod.enum(["debug", "explain", "learn", "reveal"]).optional(),
+      hintLevel: zod.number().min(0).max(4).optional(),
+    }),
+  }),
+  zod.object({
+    type: zod.literal("updateMode"),
+    data: zod.object({
+      id: zod.string(),
+      mode: zod.enum(["debug", "explain", "learn", "reveal"]),
+    }),
+  }),
+  zod.object({
+    type: zod.literal("updateHintLevel"),
+    data: zod.object({
+      id: zod.string(),
+      hintLevel: zod.number().min(0).max(4),
     }),
   }),
   zod.object({

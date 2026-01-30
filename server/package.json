@@ -1,0 +1,20 @@
+{
+  "name": "futuregirlfriendps-server",
+  "version": "0.1.0",
+  "description": "Stub backend server for FutureGirlfriendPS extension testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "ps",
+    "companion",
+    "backend"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

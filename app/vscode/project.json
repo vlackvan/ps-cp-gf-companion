@@ -3,7 +3,18 @@
   "targets": {
     "build": {
       "dependsOn": ["^build"],
-      "executor": "nx:noop"
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "app/vscode",
+        "commands": [
+          "node -e \"const fs=require('fs');['extension/dist','webview/dist','webview/asset','dev/extension/dist','dev/webview/dist','dev/webview/asset'].forEach(d=>fs.mkdirSync(d,{recursive:true}))\"",
+          "node -e \"const fs=require('fs');fs.copyFileSync('../../lib/extension/dist/extension.js','extension/dist/extension.js');fs.copyFileSync('../../lib/extension/dist/extension.js','dev/extension/dist/extension.js')\"",
+          "node -e \"const fs=require('fs');fs.copyFileSync('../../lib/webview/dist/webview.js','webview/dist/webview.js');fs.copyFileSync('../../lib/webview/dist/webview.js','dev/webview/dist/webview.js')\"",
+          "node -e \"const fs=require('fs');const path=require('path');const src='../../lib/webview/asset';fs.readdirSync(src).forEach(f=>fs.copyFileSync(path.join(src,f),path.join('dev/webview/asset',f)))\"",
+          "node -e \"const fs=require('fs');const path=require('path');function cpR(s,d){fs.mkdirSync(d,{recursive:true});fs.readdirSync(s,{withFileTypes:true}).forEach(e=>{const sp=path.join(s,e.name),dp=path.join(d,e.name);e.isDirectory()?cpR(sp,dp):fs.copyFileSync(sp,dp)})}cpR('../../template','dev/template')\""
+        ],
+        "parallel": false
+      }
     },
     "package": {
       "dependsOn": ["build"],

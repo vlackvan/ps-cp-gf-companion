@@ -1,8 +1,9 @@
 import { webviewApi } from "@rubberduck/common";
-import React from "react";
+import React, { useState } from "react";
 import { ConversationHeader } from "./ConversationHeader";
 import { InstructionRefinementView } from "./InstructionRefinementView";
 import { MessageExchangeView } from "./MessageExchangeView";
+import { PSControls } from "./PSControls";
 
 export const ExpandedConversationView: React.FC<{
   conversation: webviewApi.Conversation;
@@ -12,6 +13,8 @@ export const ExpandedConversationView: React.FC<{
   onClickDelete: () => void;
   onClickExport: () => void;
   onClickInsertPrompt?: () => void;
+  onUpdateMode?: (mode: "debug" | "explain" | "learn" | "reveal") => void;
+  onUpdateHintLevel?: (level: number) => void;
 }> = ({
   conversation,
   onSendMessage,
@@ -19,9 +22,27 @@ export const ExpandedConversationView: React.FC<{
   onClickRetry,
   onClickDelete,
   onClickExport,
-  onClickInsertPrompt
+  onClickInsertPrompt,
+  onUpdateMode,
+  onUpdateHintLevel,
 }) => {
     const content = conversation.content;
+    const [mode, setMode] = useState<"debug" | "explain" | "learn" | "reveal">(
+      conversation.mode || "debug"
+    );
+    const [hintLevel, setHintLevel] = useState<number>(
+      conversation.hintLevel ?? 1
+    );
+
+    const handleModeChange = (newMode: "debug" | "explain" | "learn" | "reveal") => {
+      setMode(newMode);
+      onUpdateMode?.(newMode);
+    };
+
+    const handleHintLevelChange = (newLevel: number) => {
+      setHintLevel(newLevel);
+      onUpdateHintLevel?.(newLevel);
+    };
 
     return (
       <div className={`conversation expanded`}>
@@ -30,6 +51,17 @@ export const ExpandedConversationView: React.FC<{
             (<ConversationHeader conversation={conversation} onIconClick={onClickInsertPrompt} />)
             : (<ConversationHeader conversation={conversation} />)
         }
+
+        {/* PS Controls - only show if mode/hintLevel are present */}
+        {(conversation.mode !== undefined || conversation.hintLevel !== undefined) && (
+          <PSControls
+            mode={mode}
+            hintLevel={hintLevel}
+            onModeChange={handleModeChange}
+            onHintLevelChange={handleHintLevelChange}
+            disabled={content.type === "messageExchange" && content.state.type !== "userCanReply"}
+          />
+        )}
 
         {(() => {
           const type = content.type;

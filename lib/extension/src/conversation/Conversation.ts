@@ -28,7 +28,7 @@ export class Conversation {
 
   protected readonly initVariables: Record<string, unknown>;
 
-  private readonly template: RubberduckTemplate;
+  protected readonly template: RubberduckTemplate;
 
   private temporaryEditorContent: string | undefined;
   private temporaryEditorDocument: vscode.TextDocument | undefined;
@@ -164,7 +164,7 @@ export class Conversation {
     });
   }
 
-  private async executeChat() {
+  protected async executeChat() {
     try {
       const prompt =
         this.messages[0] == null && this.template.initialMessage != null
@@ -206,7 +206,7 @@ export class Conversation {
     }
   }
 
-  private async handlePartialCompletion(
+  protected async handlePartialCompletion(
     partialCompletion: string,
     prompt: Prompt
   ) {
@@ -248,7 +248,7 @@ export class Conversation {
     }
   }
 
-  private async handleCompletion(completionContent: string, prompt: Prompt) {
+  protected async handleCompletion(completionContent: string, prompt: Prompt) {
     const completionHandler = prompt.completionHandler ?? {
       type: "message",
     };
@@ -490,7 +490,7 @@ export class Conversation {
     await this.updateChatPanel();
   }
 
-  private async setError(error: webviewApi.Error) {
+  protected async setError(error: webviewApi.Error) {
     this.error = error;
     await this.updateChatPanel();
   }

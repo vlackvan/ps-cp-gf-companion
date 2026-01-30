@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "main": "build/index.js",
-  "devDependencies": {},
   "dependencies": {
-    "zod": "3.20.2"
+    "zod": "^3.25.76"
   }
 }

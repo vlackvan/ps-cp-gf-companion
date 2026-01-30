@@ -1,17 +1,16 @@
 {
-  "publisher": "rubberduck",
-  "name": "rubberduck-vscode",
-  "version": "1.21.0",
-  "displayName": "Rubberduck - ChatGPT for Visual Studio Code",
-  "description": "Generate code, edit code, explain code, generate tests, find bugs, diagnose errors, and even create your own conversation templates.",
+  "publisher": "futuregirlfriendps",
+  "name": "futuregirlfriendps-vscode",
+  "version": "0.1.0",
+  "displayName": "FutureGirlfriendPS - Problem Solving Companion",
+  "description": "IDE-first PS/self-reflection coaching with anti-solution pedagogy. A fork of Rubberduck for personalized programming problem solving guidance.",
   "keywords": [
     "ai",
-    "chatgpt",
-    "gpt",
-    "openai",
-    "codex",
-    "copilot",
-    "code explanation"
+    "problem solving",
+    "ps",
+    "coaching",
+    "debugging",
+    "learning"
   ],
   "categories": [
     "Machine Learning",
@@ -32,9 +31,9 @@
     "node": ">=18",
     "vscode": "^1.72.0"
   },
-  "homepage": "https://github.com/rubberduck-ai/rubberduck-vscode",
-  "repository": "https://github.com/rubberduck-ai/rubberduck-vscode",
-  "bugs": "https://github.com/rubberduck-ai/rubberduck-vscode/issues",
+  "homepage": "https://github.com/yourusername/futuregirlfriendps-vscode",
+  "repository": "https://github.com/yourusername/futuregirlfriendps-vscode",
+  "bugs": "https://github.com/yourusername/futuregirlfriendps-vscode/issues",
   "extensionKind": [
     "workspace"
   ],
@@ -44,16 +43,6 @@
   ],
   "contributes": {
     "commands": [
-      {
-        "command": "rubberduck.enterOpenAIApiKey",
-        "category": "Rubberduck",
-        "title": "Enter OpenAI API key"
-      },
-      {
-        "command": "rubberduck.clearOpenAIApiKey",
-        "category": "Rubberduck",
-        "title": "Clear OpenAI API key"
-      },
       {
         "command": "rubberduck.startChat",
         "title": "Start Chat 💬",
@@ -139,18 +128,44 @@
       }
     ],
     "configuration": {
-      "title": "Rubberduck",
+      "title": "FutureGirlfriendPS",
       "properties": {
+        "futureGirlfriendPs.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "markdownDescription": "URL of the backend server that handles chat requests. Default is http://localhost:3000 for local development.",
+          "scope": "application"
+        },
+        "futureGirlfriendPs.defaultMode": {
+          "type": "string",
+          "default": "debug",
+          "enum": [
+            "debug",
+            "explain",
+            "learn",
+            "reveal"
+          ],
+          "enumDescriptions": [
+            "Debugging Mode: Ask targeted questions, propose print-debug strategies, suggest edge-case tests",
+            "Explain-Your-Code Mode: Forces user narration, points out logical holes",
+            "Learn-Together Mode: Mini-lesson + micro-exercise, then apply",
+            "Reveal Mode (gated): Only after attempts; still avoids dumping full code"
+          ],
+          "markdownDescription": "Default mode for new conversations",
+          "scope": "application"
+        },
+        "futureGirlfriendPs.defaultHintLevel": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 4,
+          "markdownDescription": "Default hint level (0=reflect+question, 1=assumption check, 2=experiment, 3=suspicious region, 4=pseudocode/insight)",
+          "scope": "application"
+        },
         "rubberduck.syntaxHighlighting.useVisualStudioCodeColors": {
           "type": "boolean",
           "default": false,
           "markdownDescription": "Use the Visual Studio Code Theme colors for syntax highlighting in the diff viewer. Might not work with all themes. Only applies to newly opened diffs.",
-          "scope": "application"
-        },
-        "rubberduck.indexRepository.enabled": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Enable the command to index your repository and give more context to the AI model. Experimental.",
           "scope": "application"
         },
         "rubberduck.action.editCode.showInEditorContextMenu": {
@@ -217,42 +232,6 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Enable UI to surface the prompt text to use with OpenAI plus web chat",
-          "scope": "application"
-        },
-        "rubberduck.openAI.baseUrl": {
-          "type": "string",
-          "default": "https://api.openai.com/v1/",
-          "markdownDescription": "Specify the URL to the OpenAI API. If you are using a proxy, you can set it here.",
-          "scope": "application"
-        },
-        "rubberduck.model": {
-          "type": "string",
-          "default": "gpt-3.5-turbo-0125",
-          "enum": [
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-16k",
-            "gpt-3.5-turbo-1106",
-            "gpt-3.5-turbo-0125",
-            "gpt-4",
-            "gpt-4-32k",
-            "gpt-4-1106-preview",
-            "gpt-4-0125-preview",
-            "gpt-4-turbo-preview",
-            "llama.cpp"
-          ],
-          "enumDescriptions": [
-            "OpenAI GPT-3.5-turbo: 4k context window. Faster, less expensive model. Less accurate.",
-            "OpenAI GPT-3.5-turbo: 16k context window. Faster, less expensive model. Less accurate.",
-            "OpenAI GPT-3.5-turbo: 16k context window. Faster, less expensive. Less accurate.",
-            "OpenAI GPT-3.5-turbo: 16k context window. Faster, less expensive. Less accurate. The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
-            "OpenAI GPT-4: 8k context window. Expensive, slow model. More accurate.",
-            "OpenAI GPT-4: 32k context window. Expensive, slow model. More accurate.",
-            "OpenAI GPT-4 Turbo: 128k context window. Expensive (but cheaper than 32k), slow model. More accurate.",
-            "OpenAI GPT-4 Turbo: 128k context window. Expensive (but cheaper than 32k), slow model. More accurate. The latest GPT-4 model intended to reduce cases of \"laziness\" where the model doesn't complete a task.",
-            "OpenAI GPT-4 Turbo: Currently points to gpt-4-0125-preview.",
-            "(Experimental) Llama.cpp: Calls Llama.cpp running locally on http://127.0.0.1:8080. Use for local models with Llama 2 prompt format."
-          ],
-          "markdownDescription": "Select the OpenAI model that you want to use.",
           "scope": "application"
         }
       }

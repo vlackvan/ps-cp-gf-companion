@@ -28,22 +28,23 @@ export const ChatPanelView: React.FC<{
     );
   }
 
-  if (!panelState.hasOpenAIApiKey) {
-    return (
-      <div className="enter-api-key">
-        <button onClick={() => sendMessage({ type: "enterOpenAIApiKey" })}>
-          Enter your OpenAI API key
-        </button>
-        <p>
-          Rubberduck uses the OpenAI API and requires an API key to work. You
-          can get an API key from{" "}
-          <a href="https://platform.openai.com/account/api-keys">
-            platform.openai.com/account/api-keys
-          </a>
-        </p>
-      </div>
-    );
-  }
+  // Skip API key check for FutureGirlfriendPS - we use a backend instead
+  // if (!panelState.hasOpenAIApiKey) {
+  //   return (
+  //     <div className="enter-api-key">
+  //       <button onClick={() => sendMessage({ type: "enterOpenAIApiKey" })}>
+  //         Enter your OpenAI API key
+  //       </button>
+  //       <p>
+  //         Rubberduck uses the OpenAI API and requires an API key to work. You
+  //         can get an API key from{" "}
+  //         <a href="https://platform.openai.com/account/api-keys">
+  //           platform.openai.com/account/api-keys
+  //         </a>
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   if (panelState.conversations.length === 0) {
     return (
@@ -61,7 +62,12 @@ export const ChatPanelView: React.FC<{
             onSendMessage={(message: string) =>
               sendMessage({
                 type: "sendMessage",
-                data: { id: conversation.id, message },
+                data: {
+                  id: conversation.id,
+                  message,
+                  mode: conversation.mode,
+                  hintLevel: conversation.hintLevel,
+                },
               })
             }
             onClickRetry={() =>
@@ -94,6 +100,18 @@ export const ChatPanelView: React.FC<{
                 data: { id: conversation.id },
               })
             } : undefined}
+            onUpdateMode={(mode) =>
+              sendMessage({
+                type: "updateMode",
+                data: { id: conversation.id, mode },
+              })
+            }
+            onUpdateHintLevel={(hintLevel) =>
+              sendMessage({
+                type: "updateHintLevel",
+                data: { id: conversation.id, hintLevel },
+              })
+            }
           />
         ) : (
           <CollapsedConversationView

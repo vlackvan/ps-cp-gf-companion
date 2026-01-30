@@ -1,7 +1,9 @@
 import { util, webviewApi } from "@rubberduck/common";
 import * as vscode from "vscode";
 import { AIClient } from "../ai/AIClient";
+import { BackendClient } from "../ai/BackendClient";
 import { Conversation } from "../conversation/Conversation";
+import { PSConversation } from "../conversation/PSConversation";
 import { ConversationType } from "../conversation/ConversationType";
 import { resolveVariables } from "../conversation/input/resolveVariables";
 import { DiffEditorManager } from "../diff/DiffEditorManager";
@@ -12,6 +14,7 @@ export class ChatController {
   private readonly chatPanel: ChatPanel;
   private readonly chatModel: ChatModel;
   private readonly ai: AIClient;
+  private readonly backendClient: BackendClient;
   private readonly getConversationType: (
     id: string
   ) => ConversationType | undefined;
@@ -23,6 +26,7 @@ export class ChatController {
     chatPanel,
     chatModel,
     ai,
+    backendClient,
     getConversationType,
     diffEditorManager,
     basicChatTemplateId,
@@ -30,6 +34,7 @@ export class ChatController {
     chatPanel: ChatPanel;
     chatModel: ChatModel;
     ai: AIClient;
+    backendClient: BackendClient;
     getConversationType: (id: string) => ConversationType | undefined;
     diffEditorManager: DiffEditorManager;
     basicChatTemplateId: string;
@@ -37,6 +42,7 @@ export class ChatController {
     this.chatPanel = chatPanel;
     this.chatModel = chatModel;
     this.ai = ai;
+    this.backendClient = backendClient;
     this.getConversationType = getConversationType;
     this.diffEditorManager = diffEditorManager;
     this.basicChatTemplateId = basicChatTemplateId;
@@ -86,7 +92,7 @@ export class ChatController {
         break;
       }
       case "startChat": {
-        await this.createConversation(this.basicChatTemplateId);
+        await this.createPSConversation();
         break;
       }
       case "deleteConversation": {
@@ -114,6 +120,26 @@ export class ChatController {
           .getConversationById(message.data.id)
           ?.insertPromptIntoEditor();
         break;
+      case "updateMode": {
+        const conversation = this.chatModel.getConversationById(
+          message.data.id
+        );
+        if (conversation && conversation instanceof PSConversation) {
+          conversation.setMode(message.data.mode);
+          await this.updateChatPanel();
+        }
+        break;
+      }
+      case "updateHintLevel": {
+        const conversation = this.chatModel.getConversationById(
+          message.data.id
+        );
+        if (conversation && conversation instanceof PSConversation) {
+          conversation.setHintLevel(message.data.hintLevel);
+          await this.updateChatPanel();
+        }
+        break;
+      }
       case "applyDiff":
       case "reportError": {
         // Architecture debt: there are 2 views, but 1 outgoing message type
@@ -170,6 +196,72 @@ export class ChatController {
     } catch (error: any) {
       console.log(error);
       await vscode.window.showErrorMessage(error?.message ?? error);
+    }
+  }
+
+  async createPSConversation() {
+    try {
+      console.log("[FutureGirlfriendPS] Creating PS conversation...");
+      const conversationType = this.getConversationType("ps-chat");
+
+      if (conversationType == undefined) {
+        console.error(
+          "[FutureGirlfriendPS] ps-chat template not found, falling back to basic chat"
+        );
+        // Fallback to basic chat if ps-chat template doesn't exist
+        return this.createConversation(this.basicChatTemplateId);
+      }
+
+      console.log(
+        "[FutureGirlfriendPS] ps-chat template found, resolving variables..."
+      );
+      const variableValues = await resolveVariables(
+        conversationType.variables,
+        {
+          time: "conversation-start",
+        }
+      );
+
+      // Get default mode and hint level from settings
+      const defaultMode = vscode.workspace
+        .getConfiguration("futureGirlfriendPs")
+        .get("defaultMode", "debug") as
+        | "debug"
+        | "explain"
+        | "learn"
+        | "reveal";
+      const defaultHintLevel = vscode.workspace
+        .getConfiguration("futureGirlfriendPs")
+        .get("defaultHintLevel", 1) as number;
+
+      console.log(
+        `[FutureGirlfriendPS] Creating conversation with mode=${defaultMode}, hintLevel=${defaultHintLevel}`
+      );
+
+      // Create PS conversation using BackendClient
+      const psConversation = new PSConversation({
+        id: this.generateConversationId(),
+        backendClient: this.backendClient,
+        updateChatPanel: this.updateChatPanel.bind(this),
+        template: (conversationType as any).template,
+        diffEditorManager: this.diffEditorManager,
+        diffData: undefined,
+        initVariables: variableValues,
+        mode: defaultMode,
+        hintLevel: defaultHintLevel,
+      });
+
+      console.log("[FutureGirlfriendPS] Adding conversation to panel...");
+      await this.addAndShowConversation<PSConversation>(psConversation);
+      console.log("[FutureGirlfriendPS] PS conversation created successfully!");
+    } catch (error: any) {
+      console.error(
+        "[FutureGirlfriendPS] Error creating PS conversation:",
+        error
+      );
+      await vscode.window.showErrorMessage(
+        `Failed to create PS conversation: ${error?.message ?? error}`
+      );
     }
   }
 }
