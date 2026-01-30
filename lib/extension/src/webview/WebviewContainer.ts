@@ -40,6 +40,12 @@ export class WebviewContainer {
   }
 
   async updateState(state: webviewApi.PanelState) {
+    console.log("[FutureGirlfriendPS] WebviewContainer.updateState called", {
+      stateType: state?.type,
+      conversationCount:
+        state?.type === "chat" ? state.conversations?.length : "N/A",
+      selectedId: state?.type === "chat" ? state.selectedConversationId : "N/A",
+    });
     return this.webview.postMessage({
       type: "updateState",
       state,
@@ -56,12 +62,15 @@ export class WebviewContainer {
     const baseCssUri = this.getUri("asset", "base.css");
     const codiconsCssUri = this.getUri("asset", "codicons.css");
     const panelCssUri = this.getUri("asset", `${this.panelCssId}.css`);
+    const onboardingCssUri = this.getUri("asset", "onboarding.css");
+    const simplechatCssUri = this.getUri("asset", "simplechat.css");
     const scriptUri = this.getUri("dist", "webview.js");
     const prismScriptUri = this.getUri("asset", "prism.js");
 
     // Use a nonce to only allow a specific script to be run.
     const nonce = generateNonce();
     const prismNonce = generateNonce();
+    const testNonce = generateNonce();
 
     const cspSource = this.webview?.cspSource;
 
@@ -70,21 +79,30 @@ export class WebviewContainer {
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy"
-          content="default-src 'none'; font-src ${cspSource}; style-src ${cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'nonce-${prismNonce}';" />
+          content="default-src 'none'; img-src ${cspSource}; font-src ${cspSource}; style-src ${cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'nonce-${prismNonce}' 'nonce-${testNonce}';" />
     <link href="${baseCssUri}" rel="stylesheet" />
     <link href="${codiconsCssUri}" rel="stylesheet" />
     <link href="${panelCssUri}" rel="stylesheet" />
+    <link href="${onboardingCssUri}" rel="stylesheet" />
+    <link href="${simplechatCssUri}" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <div id="root" />
+    <div id="root"></div>
 
+    <script nonce="${testNonce}">
+      console.log('[FutureGirlfriendPS] TEST: Inline script is running!');
+      // Set asset base URI for React components
+      window.assetBaseUri = '${this.getUri("asset")}';
+    </script>
     <!-- Without the closing /script tag, the second script doesn't load -->
     <script nonce="${prismNonce}" src="${prismScriptUri}"></script>
     <script nonce="${nonce}"
             src="${scriptUri}"
             data-panel-id="${this.panelId}"
-            data-state-reloading-enabled="${this.isStateReloadingEnabled}" />
+            data-state-reloading-enabled="${
+              this.isStateReloadingEnabled
+            }"></script>
   </body>
 </html>`;
   }

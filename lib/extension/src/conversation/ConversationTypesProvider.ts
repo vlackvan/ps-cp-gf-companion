@@ -35,6 +35,7 @@ export class ConversationTypesProvider {
 
   private async loadBuiltInTemplates() {
     const builtInConversationTypes = [
+      await this.loadBuiltinTemplate("ps-chat.rdt.md"),
       await this.loadBuiltinTemplate("chat", "chat-en.rdt.md"),
       await this.loadBuiltinTemplate("fun", "code-sonnet.rdt.md"),
       await this.loadBuiltinTemplate("fun", "drunken-pirate.rdt.md"),

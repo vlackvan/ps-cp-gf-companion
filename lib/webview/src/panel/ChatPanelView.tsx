@@ -1,131 +1,133 @@
-import { webviewApi } from "@rubberduck/common";
-import React from "react";
-import { CollapsedConversationView } from "../component/CollapsedConversationView";
-import { ExpandedConversationView } from "../component/ExpandedConversationView";
+import { webviewApi, personality } from "@rubberduck/common";
+import React, { useState, useEffect } from "react";
 import { SendMessage } from "../vscode/SendMessage";
+import { Onboarding, SurveyForm } from "./onboarding";
+import { SimpleChatView } from "../component/SimpleChatView";
 
-const StartChatButton: React.FC<{
-  onClick: () => void;
-}> = ({ onClick }) => (
-  <div className="start-chat">
-    <button onClick={onClick}>Start new chat</button>
-  </div>
-);
+const {
+  CHARACTERS,
+  calculatePersonalityProfile,
+} = personality;
+
+type Character = personality.Character;
+type UserProfile = personality.UserProfile;
+type SurveyStep = personality.SurveyStep;
+
 
 export const ChatPanelView: React.FC<{
   sendMessage: SendMessage;
   panelState: webviewApi.PanelState;
 }> = ({ panelState, sendMessage }) => {
-  if (panelState == null) {
+  // Onboarding state
+  const [onboardingStep, setOnboardingStep] = useState<SurveyStep>('character');
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | undefined>();
+  const [userProfile, setUserProfile] = useState<UserProfile | undefined>();
+
+  // Auto-start chat after onboarding completes - MUST be before any returns!
+  useEffect(() => {
+    if (onboardingStep === 'complete') {
+      // Check if we need to start a new chat
+      if (panelState == null ||
+        (panelState.type === "chat" && panelState.conversations.length === 0)) {
+        sendMessage({ type: "startChat" });
+      }
+    }
+  }, [onboardingStep, panelState, sendMessage]);
+
+  const handleCharacterSelect = (character: Character) => {
+    setSelectedCharacter(character);
+  };
+
+  const handleStartSurvey = () => {
+    if (selectedCharacter) {
+      setOnboardingStep('demographics');
+    }
+  };
+
+  const handleSurveyComplete = (
+    profile: UserProfile,
+    bfiResponses: number[],
+    pvqResponses: number[]
+  ) => {
+    setUserProfile(profile);
+    const personalityProfile = calculatePersonalityProfile(bfiResponses, pvqResponses);
+
+    // Send to extension to persist
+    sendMessage({
+      type: "onboardingComplete",
+      data: {
+        character: selectedCharacter,
+        userProfile: profile,
+        personalityProfile,
+      },
+    } as any);
+
+    // Move to complete step which triggers chat start
+    setOnboardingStep('complete');
+  };
+
+  const handleBackToCharacterSelect = () => {
+    setOnboardingStep('character');
+  };
+
+  // Show onboarding flow - character selection
+  if (onboardingStep === 'character') {
     return (
-      <StartChatButton onClick={() => sendMessage({ type: "startChat" })} />
+      <Onboarding
+        selectedCharacter={selectedCharacter}
+        onCharacterSelect={handleCharacterSelect}
+        onStartSurvey={handleStartSurvey}
+      />
     );
+  }
+
+  // Show survey form
+  if (onboardingStep === 'demographics' || onboardingStep === 'bfi' || onboardingStep === 'pvq') {
+    return (
+      <SurveyForm
+        onComplete={handleSurveyComplete}
+        onBack={handleBackToCharacterSelect}
+      />
+    );
+  }
+
+  // After onboarding complete - wait for panelState
+  if (panelState == null) {
+    return <div className="loading-chat">Loading chat...</div>;
   }
 
   if (panelState.type !== "chat") {
-    throw new Error(
-      `Invalid panel state '${panelState.type}' (expected 'chat'))`
-    );
+    return <div className="loading-chat">Initializing...</div>;
   }
 
-  // Skip API key check for FutureGirlfriendPS - we use a backend instead
-  // if (!panelState.hasOpenAIApiKey) {
-  //   return (
-  //     <div className="enter-api-key">
-  //       <button onClick={() => sendMessage({ type: "enterOpenAIApiKey" })}>
-  //         Enter your OpenAI API key
-  //       </button>
-  //       <p>
-  //         Rubberduck uses the OpenAI API and requires an API key to work. You
-  //         can get an API key from{" "}
-  //         <a href="https://platform.openai.com/account/api-keys">
-  //           platform.openai.com/account/api-keys
-  //         </a>
-  //       </p>
-  //     </div>
-  //   );
-  // }
-
   if (panelState.conversations.length === 0) {
-    return (
-      <StartChatButton onClick={() => sendMessage({ type: "startChat" })} />
-    );
+    return <div className="loading-chat">Starting conversation...</div>;
+  }
+
+  // Get the selected conversation
+  const selectedConversation = panelState.conversations.find(
+    c => c.id === panelState.selectedConversationId
+  );
+
+  if (!selectedConversation) {
+    return <div className="loading-chat">Loading conversation...</div>;
   }
 
   return (
-    <div>
-      {panelState.conversations.reverse().map((conversation) =>
-        panelState.selectedConversationId === conversation.id ? (
-          <ExpandedConversationView
-            key={conversation.id}
-            conversation={conversation}
-            onSendMessage={(message: string) =>
-              sendMessage({
-                type: "sendMessage",
-                data: {
-                  id: conversation.id,
-                  message,
-                  mode: conversation.mode,
-                  hintLevel: conversation.hintLevel,
-                },
-              })
-            }
-            onClickRetry={() =>
-              sendMessage({
-                type: "retry",
-                data: { id: conversation.id },
-              })
-            }
-            onClickDismissError={() =>
-              sendMessage({
-                type: "dismissError",
-                data: { id: conversation.id },
-              })
-            }
-            onClickDelete={() =>
-              sendMessage({
-                type: "deleteConversation",
-                data: { id: conversation.id },
-              })
-            }
-            onClickExport={() => {
-              sendMessage({
-                type: "exportConversation",
-                data: { id: conversation.id },
-              });
-            }}
-            onClickInsertPrompt={panelState.surfacePromptForOpenAIPlus ? () => {
-              sendMessage({
-                type: "insertPromptIntoEditor",
-                data: { id: conversation.id },
-              })
-            } : undefined}
-            onUpdateMode={(mode) =>
-              sendMessage({
-                type: "updateMode",
-                data: { id: conversation.id, mode },
-              })
-            }
-            onUpdateHintLevel={(hintLevel) =>
-              sendMessage({
-                type: "updateHintLevel",
-                data: { id: conversation.id, hintLevel },
-              })
-            }
-          />
-        ) : (
-          <CollapsedConversationView
-            key={conversation.id}
-            conversation={conversation}
-            onClick={() =>
-              sendMessage({
-                type: "clickCollapsedConversation",
-                data: { id: conversation.id },
-              })
-            }
-          />
-        )
-      )}
-    </div>
+    <SimpleChatView
+      conversation={selectedConversation}
+      character={selectedCharacter}
+      onSendMessage={(message: string) =>
+        sendMessage({
+          type: "sendMessage",
+          data: {
+            id: selectedConversation.id,
+            message,
+            mode: selectedConversation.mode,
+            hintLevel: selectedConversation.hintLevel,
+          },
+        })
+      }
+    />
   );
 };

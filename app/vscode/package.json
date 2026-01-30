@@ -5,7 +5,7 @@
   "scripts": {},
   "devDependencies": {},
   "dependencies": {
-    "@rubberduck/extension": "*",
-    "@rubberduck/webview": "*"
+    "@rubberduck/extension": "workspace:*",
+    "@rubberduck/webview": "workspace:*"
   }
 }

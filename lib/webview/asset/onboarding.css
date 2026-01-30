@@ -1,0 +1,366 @@
+/* Onboarding Styles */
+
+.onboarding-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.onboarding-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.onboarding-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(90deg, #ff6b9d, #c44569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.onboarding-header p {
+  font-size: 14px;
+  color: #8892b0;
+  margin: 0;
+}
+
+/* Character Selection */
+.character-selection {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.character-card {
+  position: relative;
+  width: 280px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.character-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.character-card.selected {
+  border-color: #ff6b9d;
+  background: rgba(255, 107, 157, 0.1);
+}
+
+.character-card.chihiro.selected {
+  border-color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.1);
+}
+
+.character-card.aru.selected {
+  border-color: #ff6b9d;
+  background: rgba(255, 107, 157, 0.1);
+}
+
+.character-avatar {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.character-info {
+  text-align: center;
+}
+
+.character-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.character-subtitle {
+  font-size: 12px;
+  color: #8892b0;
+  margin: 0 0 12px 0;
+}
+
+.character-description {
+  font-size: 13px;
+  color: #a8b2d1;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.selected-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background: #ff6b9d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.character-card.chihiro .selected-indicator {
+  background: #4fc3f7;
+}
+
+/* Buttons */
+.onboarding-actions {
+  margin-top: 16px;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.4);
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background: transparent;
+  color: #8892b0;
+  border: 1px solid #8892b0;
+  padding: 12px 24px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: #fff;
+}
+
+.onboarding-note {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.onboarding-note p {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Survey Styles */
+.survey-container {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.survey-progress {
+  margin-bottom: 32px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b9d, #c44569);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8892b0;
+}
+
+.survey-step {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.survey-step h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.survey-description {
+  text-align: center;
+  color: #8892b0;
+  margin: 0 0 32px 0;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #a8b2d1;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff6b9d;
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: #ff6b9d;
+}
+
+/* Question Card */
+.question-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.question-text {
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+/* Likert Scale */
+.likert-scale {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.likert-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.likert-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.likert-option.selected {
+  background: rgba(255, 107, 157, 0.2);
+  border-color: #ff6b9d;
+}
+
+.likert-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.likert-label {
+  font-size: 10px;
+  color: #8892b0;
+  text-align: center;
+}
+
+.likert-6 .likert-option {
+  min-width: 65px;
+  padding: 12px 8px;
+}
+
+.likert-6 .likert-value {
+  font-size: 20px;
+}
+
+.likert-6 .likert-label {
+  font-size: 9px;
+}
+
+/* Survey Actions */
+.survey-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}

@@ -12,7 +12,7 @@
     "eslint-plugin-react": "^7.32.1"
   },
   "dependencies": {
-    "@rubberduck/common": "*",
+    "@rubberduck/common": "workspace:*",
     "esbuild": "0.27.2",
     "prismjs": "^1.30.0",
     "react": "18.2.0",

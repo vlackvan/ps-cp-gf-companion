@@ -17,6 +17,12 @@ if (rootElement != undefined) {
   const reactRoot = createRoot(rootElement);
 
   const render = (panelState?: webviewApi.PanelState) => {
+    console.log("[FutureGirlfriendPS] webview.tsx render called", {
+      panelType: panel,
+      stateType: panelState?.type,
+      conversationCount: panelState?.type === "chat" ? panelState.conversations?.length : "N/A",
+      selectedId: panelState?.type === "chat" ? panelState.selectedConversationId : "N/A",
+    });
     try {
       reactRoot?.render(
         <React.StrictMode>
@@ -43,10 +49,14 @@ if (rootElement != undefined) {
         </React.StrictMode>
       );
     } catch (error) {
-      console.error(error);
+      console.error("[FutureGirlfriendPS] webview.tsx render error", error);
     }
   };
 
+  console.log("[FutureGirlfriendPS] webview.tsx initial render", {
+    isStateReloadingEnabled,
+    initialState: isStateReloadingEnabled ? StateManager.getState() : undefined,
+  });
   render(isStateReloadingEnabled ? StateManager.getState() : undefined);
   StateManager.registerUpdateListener(render);
 }

@@ -17,20 +17,37 @@ try {
 }
 
 const updateState = (newState: webviewApi.PanelState) => {
+  console.log("[FutureGirlfriendPS] StateManager.updateState called", {
+    stateType: newState?.type,
+    conversationCount:
+      newState?.type === "chat" ? newState.conversations?.length : "N/A",
+    selectedId:
+      newState?.type === "chat" ? newState.selectedConversationId : "N/A",
+    hasUpdateListener: updateListener != null,
+  });
   vscodeApi.setState(newState);
   state = newState;
 
   if (updateListener != null) {
+    console.log("[FutureGirlfriendPS] StateManager calling updateListener");
     updateListener(state);
   }
 };
 
 window.addEventListener("message", (rawMessage: unknown) => {
-  const event = webviewApi.incomingMessageSchema.parse(rawMessage);
+  console.log("[FutureGirlfriendPS] StateManager received message", rawMessage);
+  try {
+    const event = webviewApi.incomingMessageSchema.parse(rawMessage);
 
-  const message = event.data;
-  if (message.type === "updateState") {
-    updateState(message.state);
+    const message = event.data;
+    if (message.type === "updateState") {
+      updateState(message.state);
+    }
+  } catch (error) {
+    console.error(
+      "[FutureGirlfriendPS] StateManager failed to parse message",
+      error
+    );
   }
 });
 
